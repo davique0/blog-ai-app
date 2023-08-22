@@ -17,12 +17,12 @@ const Sidebar = (props: Props) => {
       <Subscribe />
       <div className='bg-wh-900 my-8 '>
         <Image
+          className='hidden md:block my-8 w-full'
           alt="Ad-2"
           placeholder='blur'
           src={Ad2}
           width={500}
           height={1000}
-          style={{ objectFit: "cover" }}
         />
 
       </div>
