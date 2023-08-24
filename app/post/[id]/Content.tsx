@@ -2,7 +2,7 @@
 import SocialLinks from '@/app/(shared)/SocialLinks';
 import { FormattedPost } from '@/app/types';
 import { PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { EditorContent, useEditor } from '@tiptap/react';
+import { Editor, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from 'next/image';
 import React, { useState } from 'react';
@@ -20,11 +20,23 @@ const Content = ({ post }: Props) => {
   const [content, setContent] = useState<string>(post.content);
   const [contentError, setContentError] = useState<string>('');
 
+  const handleIsEditable = (bool: boolean) => {
+    setIsEditable(bool);
+    editor?.setEditable(bool);
+  }
+
+  const handleOnChangeContent = ({ editor }: any) => {
+    if (!(editor as Editor).isEmpty) setContentError('');
+    setContent((editor as Editor).getHTML());
+  }
+
   const editor = useEditor({
     extensions: [
       StarterKit,
     ],
-    content: '<p>Hello World! 🌎️</p>',
+    onUpdate: handleOnChangeContent,
+    content: content,
+    editable: isEditable,
   })
 
   const handleSubmit = () => {
@@ -41,12 +53,12 @@ const Content = ({ post }: Props) => {
         <div className='mt-4'>
           {isEditable ? (
             <div className='flex justify-between items-center gap-3'>
-              <button onClick={() => console.log('cancel edit')}>
+              <button onClick={() => handleIsEditable(!isEditable)}>
                 <XMarkIcon className='h-6 w-6 text-accent-red' />
               </button>
             </div>
           ) : (
-            <button onClick={() => console.log('make edit')}>              <PencilSquareIcon className='h-6 w-6 text-accent-red' />            </button>
+            <button onClick={() => handleIsEditable(!isEditable)}>              <PencilSquareIcon className='h-6 w-6 text-accent-red' />            </button>
           )
           }
         </div>
@@ -89,6 +101,7 @@ const Content = ({ post }: Props) => {
           {isEditable && (
             <>
               <EditorMenuBar editor={editor} />
+              <hr className='border-1 mt-2 mb-5' />
             </>
           )}
           <EditorContent editor={editor} />
