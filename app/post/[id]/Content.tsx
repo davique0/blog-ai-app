@@ -1,12 +1,12 @@
 "use client";
 import SocialLinks from '@/app/(shared)/SocialLinks';
 import { FormattedPost } from '@/app/types';
-import { PencilSquareIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Editor, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from 'next/image';
 import React, { useState } from 'react';
 import EditorMenuBar from './EditorMenuBar';
+import CategoryAndEdit from './CategoryAndEdit';
 
 type Props = {
   post: FormattedPost;
@@ -17,12 +17,20 @@ const Content = ({ post }: Props) => {
 
   const [title, setTitle] = useState<string>(post.title);
   const [titleError, setTitleError] = useState<string>('');
+  const [tempTitle, setTempTitle] = useState<string>(title);
   const [content, setContent] = useState<string>(post.content);
   const [contentError, setContentError] = useState<string>('');
+  const [tempContent, setTempContent] = useState<string>(content);
+
 
   const handleIsEditable = (bool: boolean) => {
     setIsEditable(bool);
     editor?.setEditable(bool);
+  }
+
+  const handleOnChangeTitle = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (title) setTitleError('');
+    setTitle(e.target.value);
   }
 
   const handleOnChangeContent = ({ editor }: any) => {
@@ -48,21 +56,18 @@ const Content = ({ post }: Props) => {
       {/* Breadcrumbs */}
       <h5 className='text-wh-300 '>{`Home > ${post.category} > ${post.title}`}</h5>
       {/* Category and Edit */}
-      <div className='flex justify-between items-center'>
-        <h4 className='bg-accent-orange py-2 px-5 text-wh-900 text-sm font-bold'>{post.category}</h4>
-        <div className='mt-4'>
-          {isEditable ? (
-            <div className='flex justify-between items-center gap-3'>
-              <button onClick={() => handleIsEditable(!isEditable)}>
-                <XMarkIcon className='h-6 w-6 text-accent-red' />
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => handleIsEditable(!isEditable)}>              <PencilSquareIcon className='h-6 w-6 text-accent-red' />            </button>
-          )
-          }
-        </div>
-      </div>
+      <CategoryAndEdit
+        isEditable={isEditable}
+        handleIsEditable={handleIsEditable}
+        title={title}
+        setTitle={setTitle}
+        tempTitle={tempTitle}
+        setTempTitle={setTempTitle}
+        tempContent={tempContent}
+        setTempContent={setTempContent}
+        editor={editor}
+        post={post}
+      />
       <form onSubmit={handleSubmit}>
         {/* Header */}
         <>
@@ -71,7 +76,7 @@ const Content = ({ post }: Props) => {
               <textarea
                 className='border-2 rounded-md bg-wh-50 p-3 w-full'
                 placeholder='Title'
-                onChange={(e) => console.log("change title", e.target.value)}
+                onChange={handleOnChangeTitle}
                 value={title}
               />
             </div>
